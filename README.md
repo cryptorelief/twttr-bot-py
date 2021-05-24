@@ -4,5 +4,7 @@ Twitter Bot implemented with Python
 # Installation
  clone the repo <br>
  cd repo <br>
+ create a virtual env
  pip install -r requirements.txt <br>
- python covid_twt_bot.py <br>
+ python bot.py <br>
+ ctrl + c to kill the process <br>
