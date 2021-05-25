@@ -27,7 +27,7 @@ class Bot:
         if(not(expansions)):
             expansions = "author_id,geo.place_id"
         if(not(tweet_fields)):
-            tweet_fields = "conversation_id,created_at,geo"
+            tweet_fields = "conversation_id,created_at,geo,referenced_tweets"
         s = requests.get("https://api.twitter.com/2/tweets/search/recent?query={}&max_results=100&expansions={}&tweet.fields={}&user.fields=location,description,username".format(queries,expansions,tweet_fields),headers=self.headers)
         return s.json()
 
@@ -51,7 +51,7 @@ class Bot:
                 continue
 
     def add_rules(self):
-        rules = [{'value':"{} (-is:retweet -is:quote -is:reply)".format(BOT_HANDLE)}]
+        rules = [{'value':"{} (-is:retweet)".format(BOT_HANDLE)}]
         payload = {"add":rules}
         r = requests.post("https://api.twitter.com/2/tweets/search/stream/rules",headers=self.headers,json=payload)
 

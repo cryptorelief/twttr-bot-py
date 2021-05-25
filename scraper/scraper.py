@@ -39,7 +39,12 @@ def scrape(bot,num_tweets,queries):
     extracted_data = get_extracted_data()
     while(tweets_scraped<=num_tweets):
         hashed_extracted_data = hash_data(extracted_data)
-        search_results = bot.search(queries=queries)['data'] # 100 is the max you can fetch from Twitter at a time
+        try:
+            search_results = bot.search(queries=queries)['data'] # 100 is the max you can fetch from Twitter at a time
+        except KeyboardInterrupt as e:
+            raise SystemExit(e)
+        except:
+            continue
         for result in search_results:
             result_hash = sha256(str(result).encode('utf-8')).hexdigest()
             if(result_hash not in hashed_extracted_data):
@@ -55,4 +60,4 @@ def scrape(bot,num_tweets,queries):
     print("\n\nDONE")
 
 if __name__=="__main__":
-    scrape(bot=Bot(), num_tweets=100, queries=["lang:en (#Covid19India OR #CoronavirusIndia) (-is:retweet -is:quote -is:reply)"])
+    scrape(bot=Bot(), num_tweets=1000, queries=["lang:en (#COVIDEmergency2021 OR #AmphotericinB OR #CovidSOS OR #LiposomalAmphotericin OR #LiposomalAmphotericinB OR #Tocilizumab400 OR @COVResourcesIn OR @IndiaCovidRes OR @COVIDCitizens OR @TeamSOSIndia) (-is:retweet)"])
