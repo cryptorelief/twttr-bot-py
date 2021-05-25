@@ -60,4 +60,9 @@ def scrape(bot,num_tweets,queries):
     print("\n\nDONE")
 
 if __name__=="__main__":
-    scrape(bot=Bot(), num_tweets=1000, queries=["lang:en (#COVIDEmergency2021 OR #AmphotericinB OR #CovidSOS OR #LiposomalAmphotericin OR #LiposomalAmphotericinB OR #Tocilizumab400 OR @COVResourcesIn OR @IndiaCovidRes OR @COVIDCitizens OR @TeamSOSIndia) (-is:retweet)"])
+    try:
+        num_tweets = int(sys.argv[1])
+    except IndexError:
+        print("ERROR \n Enter the number of tweets to be scraped as Command line argument (int)!")
+        raise SystemExit
+    scrape(bot=Bot(), num_tweets=num_tweets, queries=["lang:en (#COVIDEmergency2021 OR #AmphotericinB OR #CovidSOS OR #LiposomalAmphotericin OR #LiposomalAmphotericinB OR #Tocilizumab400 OR @COVResourcesIn OR @IndiaCovidRes OR @COVIDCitizens OR @TeamSOSIndia) (-is:retweet)"])

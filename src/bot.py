@@ -25,7 +25,7 @@ class Bot:
     def search(self, queries, expansions=None, tweet_fields=None):
         queries = to_query_str(queries)
         if(not(expansions)):
-            expansions = "author_id,geo.place_id"
+            expansions = "author_id,geo.place_id,referenced_tweets.id"
         if(not(tweet_fields)):
             tweet_fields = "conversation_id,created_at,geo,referenced_tweets"
         s = requests.get("https://api.twitter.com/2/tweets/search/recent?query={}&max_results=100&expansions={}&tweet.fields={}&user.fields=location,description,username".format(queries,expansions,tweet_fields),headers=self.headers)
