@@ -28,7 +28,7 @@ class Bot:
             expansions = "author_id,geo.place_id"
         if(not(tweet_fields)):
             tweet_fields = "conversation_id,created_at,geo"
-        s = requests.get("https://api.twitter.com/2/tweets/search/recent?query={}&max_results=100&user.fields=location,description,username&expansions={}&tweet.fields={}".format(queries,expansions,tweet_fields),headers=self.headers)
+        s = requests.get("https://api.twitter.com/2/tweets/search/recent?query={}&max_results=100&expansions={}&tweet.fields={}&user.fields=location,description,username".format(queries,expansions,tweet_fields),headers=self.headers)
         return s.json()
 
     def stream(self):
