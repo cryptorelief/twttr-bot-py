@@ -22,6 +22,11 @@ class Bot:
         if(p.status_code!=200):
             print(p.json())
 
+    def dm(self, receiver_id, message):
+        p = self.auth.post("https://api.twitter.com/1.1/direct_messages/events/new.json",data=json.dumps({"event":{"type":"message_create","message_create":{"target":{"recipient_id":"{}".format(receiver_id)},"message_data":{"text":"{}".format(message)}}}}))
+        if(p.status_code!=200):
+            print("error:{'Unable to send message'}")
+
     def search(self, queries, expansions=None, tweet_fields=None):
         queries = to_query_str(queries)
         if(not(expansions)):
