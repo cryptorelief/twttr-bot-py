@@ -43,7 +43,7 @@ def scrape(bot,num_tweets,queries):
             search_results = bot.search(queries=queries)['data'] # 100 is the max you can fetch from Twitter at a time
         except KeyboardInterrupt as e:
             raise SystemExit(e)
-        except:
+        except KeyError:
             continue
         for result in search_results:
             result_hash = sha256(str(result).encode('utf-8')).hexdigest()
