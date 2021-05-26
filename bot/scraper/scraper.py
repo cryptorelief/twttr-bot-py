@@ -4,17 +4,7 @@ from hashlib import sha256
 import json
 import time
 
-curr_dir = os.getcwd()[1:].split('/')
-for dir in reversed(curr_dir):
-    if(dir=="twttr-bot-py"):
-        break
-    else:
-        curr_dir.pop()
-parent_dir = "/" + "/".join(curr_dir)
-sys.path.append(parent_dir)
-
-from src.bot import Bot
-
+from ..src.bot import Bot
 
 def hash_data(data):
     hashed = []
@@ -22,18 +12,21 @@ def hash_data(data):
         hashed.append(sha256(str(d).encode('utf-8')).hexdigest())
     return hashed
 
+
 def get_extracted_data():
-    file_obj = open("extracted_data.json","r")
+    file_obj = open("bot/scraper/extracted_data.json","r")
     data = json.load(file_obj)['data']
     file_obj.close()
     return data
 
+
 def save_to_file(data):
-    file_obj = open("extracted_data.json","w")
+    file_obj = open("bot/scraper/extracted_data.json","w")
     json.dump({"data":data},file_obj,indent=4,default=str)
     file_obj.close()
 
-def scrape(bot,num_tweets,queries):
+
+def scrape(bot, num_tweets, queries):
     print("SCRAPING ...\n")
     tweets_scraped = 0
     extracted_data = get_extracted_data()
@@ -58,6 +51,7 @@ def scrape(bot,num_tweets,queries):
         time.sleep(30) # Time delay to make sure that our bot doesn't get banned
     save_to_file(extracted_data)
     print("\n\nDONE")
+
 
 if __name__=="__main__":
     try:

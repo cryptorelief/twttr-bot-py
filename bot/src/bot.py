@@ -2,15 +2,13 @@ import requests
 from requests_oauthlib import OAuth1Session
 import json
 import urllib
-try:
-    from src.config import API_KEY, API_KEY_SECRET, BEARER,ACCESS_TOKEN, ACCESS_TOKEN_SECRET, BOT_ID, BOT_HANDLE
-except:
-    from config import API_KEY, API_KEY_SECRET, BEARER,ACCESS_TOKEN, ACCESS_TOKEN_SECRET, BOT_ID, BOT_HANDLE
+from .config import API_KEY, API_KEY_SECRET, BEARER,ACCESS_TOKEN, ACCESS_TOKEN_SECRET, BOT_ID, BOT_HANDLE
 
 class Bot:
     def __init__(self):
         self.auth = OAuth1Session(API_KEY, client_secret=API_KEY_SECRET, resource_owner_key=ACCESS_TOKEN, resource_owner_secret=ACCESS_TOKEN_SECRET)
         self.headers = {'Authorization':'Bearer {}'.format(BEARER)}
+        self.add_rules()
 
     def reply(self, reply_text, twt_id):
         p = self.auth.post("https://api.twitter.com/1.1/statuses/update.json",data={'status':reply_text,'in_reply_to_status_id':twt_id})
@@ -37,7 +35,6 @@ class Bot:
         return s.json()
 
     def stream(self):
-        self.add_rules()
         print("STREAM STARTED! Listening ...\n")
         while True:
             try:
