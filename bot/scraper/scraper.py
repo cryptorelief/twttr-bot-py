@@ -35,9 +35,9 @@ def save_to_file(data,fname):
 def scrape(bot, num_tweets, queries):
     print("SCRAPING ...\n")
     tweets_scraped = 0
-    extracted_data = get_data("extracted_data")
+    extracted_data = []
     hashed_data = get_data("hashed_data")
-    while(tweets_scraped<=num_tweets):
+    while(tweets_scraped<num_tweets):
         try:
             search_results = bot.search(queries=queries)['data'] # 100 is the max you can fetch from Twitter at a time
             for result in search_results:

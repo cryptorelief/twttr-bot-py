@@ -3,8 +3,8 @@ from requests_oauthlib import OAuth1Session
 import json
 import urllib
 from .config import API_KEY, API_KEY_SECRET, BEARER,ACCESS_TOKEN, ACCESS_TOKEN_SECRET, BOT_ID, BOT_HANDLE
-from threading import Thread
-import time
+# from threading import Thread
+# import time
 
 class Bot:
     def __init__(self):
