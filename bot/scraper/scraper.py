@@ -13,15 +13,21 @@ def hash_data(data):
     return hashed
 
 
-def get_extracted_data():
-    file_obj = open("bot/scraper/extracted_data.json","r")
+def get_data(fname):
+    if(fname=="extracted_data"):
+        file_obj = open("bot/scraper/extracted_data.json","r")
+    elif(fname=="hashed_data"):
+        file_obj = open("bot/scraper/hashed_data.json","r")
     data = json.load(file_obj)['data']
     file_obj.close()
     return data
 
 
-def save_to_file(data):
-    file_obj = open("bot/scraper/extracted_data.json","w")
+def save_to_file(data,fname):
+    if(fname=="extracted_data"):
+        file_obj = open("bot/scraper/extracted_data.json","w")
+    elif(fname=="hashed_data"):
+        file_obj = open("bot/scraper/hashed_data.json","w")
     json.dump({"data":data},file_obj,indent=4,default=str)
     file_obj.close()
 
@@ -29,27 +35,31 @@ def save_to_file(data):
 def scrape(bot, num_tweets, queries):
     print("SCRAPING ...\n")
     tweets_scraped = 0
-    extracted_data = get_extracted_data()
+    extracted_data = get_data("extracted_data")
+    hashed_data = get_data("hashed_data")
     while(tweets_scraped<=num_tweets):
-        hashed_extracted_data = hash_data(extracted_data)
         try:
             search_results = bot.search(queries=queries)['data'] # 100 is the max you can fetch from Twitter at a time
+            for result in search_results:
+                result_hash = sha256(str(result).encode('utf-8')).hexdigest()
+                if(result_hash not in hashed_data):
+                    extracted_data.append(result)
+                    hashed_data.append(result_hash)
+                    tweets_scraped += 1
+                    print("\r{} / {} tweets scraped!".format(tweets_scraped,num_tweets),end="")
+                    if(tweets_scraped==num_tweets):
+                        break
+            if(tweets_scraped==num_tweets):
+                break
+            time.sleep(5) # Time delay to make sure that our bot doesn't get banned
         except KeyboardInterrupt as e:
+            save_to_file(extracted_data,"extracted_data")
+            save_to_file(hashed_data,"hashed_data")
             raise SystemExit(e)
         except KeyError:
             continue
-        for result in search_results:
-            result_hash = sha256(str(result).encode('utf-8')).hexdigest()
-            if(result_hash not in hashed_extracted_data):
-                extracted_data.append(result)
-                tweets_scraped += 1
-                print("\r{} / {} tweets scraped!".format(tweets_scraped,num_tweets),end="")
-                if(tweets_scraped==num_tweets):
-                    break
-        if(tweets_scraped==num_tweets):
-            break
-        time.sleep(30) # Time delay to make sure that our bot doesn't get banned
-    save_to_file(extracted_data)
+    save_to_file(extracted_data,"extracted_data")
+    save_to_file(hashed_data,"hashed_data")
     print("\n\nDONE")
 
 

@@ -3,6 +3,8 @@ from requests_oauthlib import OAuth1Session
 import json
 import urllib
 from .config import API_KEY, API_KEY_SECRET, BEARER,ACCESS_TOKEN, ACCESS_TOKEN_SECRET, BOT_ID, BOT_HANDLE
+from threading import Thread
+import time
 
 class Bot:
     def __init__(self):
@@ -34,18 +36,23 @@ class Bot:
         s = requests.get("https://api.twitter.com/2/tweets/search/recent?query={}&max_results=100&expansions={}&tweet.fields={}&user.fields=location,description,username".format(queries,expansions,tweet_fields),headers=self.headers)
         return s.json()
 
-    def stream(self):
+    def stream(self,type="search"):
         print("STREAM STARTED! Listening ...\n")
+        timeout = 0
         while True:
             try:
-                with requests.get("https://api.twitter.com/2/tweets/search/stream?expansions=author_id", headers=self.headers, stream=True) as response:
-                    for line in response.iter_lines():
-                        if line:
-                            json_response = json.loads(line)
-                            if(json_response['data']['author_id']!=BOT_ID):
-                                # USE THIS ONLY AFTER TWITTER APPROVES OUR BOT
-                                # self.reply("Hello World! This is Testing",int(json_response['data']['id']))
-                                print("{}\n".format(json_response))
+                # if(type=="covid"): # USE THIS ONLY AFTER TWITTER APPROVES OUR BOT
+                #     def get_covid_data(self,partition):
+                #         response = requests.get("https://api.twitter.com/labs/1/tweets/stream/covid19?partition={}".format(partition), headers=self.headers, stream=True)
+                #         self.on_stream_trigger(response)
+                #     threads = []
+                #     for partition in range(1,5):
+                #         Thread(target=get_covid_data,args=(self,partition,)).start()
+                #     time.sleep(2**timeout*1000)
+                #     timeout += 1
+                if(type=="search"):
+                    response = requests.get("https://api.twitter.com/2/tweets/search/stream?expansions=author_id", headers=self.headers, stream=True)
+                    self.on_stream_trigger(response)
             except KeyboardInterrupt as e:
                 print("\nSTREAM CLOSED!")
                 raise SystemExit(e)
@@ -64,6 +71,20 @@ class Bot:
             ids = list(map(lambda rule: rule["id"], rules["data"]))
             payload = {"delete": {"ids": ids}}
             response = requests.post("https://api.twitter.com/2/tweets/search/stream/rules",headers=self.headers,json=payload)
+
+    def on_stream_trigger(self,response):
+        for line in response.iter_lines():
+            if line:
+                json_response = json.loads(line)
+                if(json_response['data']['author_id']!=BOT_ID):
+                    # USE THIS ONLY AFTER TWITTER APPROVES OUR BOT
+                    # self.reply("Hello World! This is Testing",int(json_response['data']['id']))
+                    # for user in json_response['includes']['users']:
+                    #     if(user['id']==json_response['data']['author_id']):
+                    #         author_name = user['name']
+                    #         break
+                    # self.dm(json_response['data']['author_id'],"Hey {}!\nThanks for tagging us. Here are some supplies!".format(author_name))
+                    print("{}\n".format(json_response))
 
 def to_query_str(queries):
     http_safe = []
