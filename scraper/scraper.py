@@ -4,7 +4,7 @@ from hashlib import sha256
 import json
 import time
 
-from ..src.bot import Bot
+from src.bot import Bot
 
 def hash_data(data):
     hashed = []
@@ -15,9 +15,9 @@ def hash_data(data):
 
 def get_data(fname):
     if(fname=="extracted_data"):
-        file_obj = open("bot/scraper/extracted_data.json","r")
+        file_obj = open("scraper/extracted_data.json","r")
     elif(fname=="hashed_data"):
-        file_obj = open("bot/scraper/hashed_data.json","r")
+        file_obj = open("scraper/hashed_data.json","r")
     data = json.load(file_obj)['data']
     file_obj.close()
     return data
@@ -25,9 +25,9 @@ def get_data(fname):
 
 def save_to_file(data,fname):
     if(fname=="extracted_data"):
-        file_obj = open("bot/scraper/extracted_data.json","w")
+        file_obj = open("scraper/extracted_data.json","w")
     elif(fname=="hashed_data"):
-        file_obj = open("bot/scraper/hashed_data.json","w")
+        file_obj = open("scraper/hashed_data.json","w")
     json.dump({"data":data},file_obj,indent=4,default=str)
     file_obj.close()
 
@@ -51,12 +51,12 @@ def scrape(bot, num_tweets, queries):
                         break
             if(tweets_scraped==num_tweets):
                 break
-            time.sleep(5) # Time delay to make sure that our bot doesn't get banned
+            time.sleep(60) # Time delay to make sure that our bot doesn't get banned
         except KeyboardInterrupt as e:
             save_to_file(extracted_data,"extracted_data")
             save_to_file(hashed_data,"hashed_data")
             raise SystemExit(e)
-        except KeyError:
+        except:
             continue
     save_to_file(extracted_data,"extracted_data")
     save_to_file(hashed_data,"hashed_data")
