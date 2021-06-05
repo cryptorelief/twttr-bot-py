@@ -2,3 +2,5 @@ config.py
 extracted_data.json
 __pycache__
 hashed_data.json
+scraper.log
+bot.log
