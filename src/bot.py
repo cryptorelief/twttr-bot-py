@@ -22,11 +22,31 @@ class Bot:
         self.headers = {'Authorization':'Bearer {}'.format(BEARER)}
         self.add_rules()
 
-    def reply(self, reply_text, twt_id, author_handle):
-        reply_text = f"@{author_handle} {reply_text}"
-        p = self.auth.post("https://api.twitter.com/1.1/statuses/update.json",data={'status':reply_text,'in_reply_to_status_id':twt_id})
+    def tweet(self,text):
+        messages = split_text(text,f"@{BOT_HANDLE} ")
+        p = self.auth.post("https://api.twitter.com/1.1/statuses/update.json",data={'status':messages[0]})
         if(p.status_code!=200):
-            logger.error(f"Reply {p.json()}")
+            logger.error(f"Tweet {p.json()}")
+            return
+        twt_id, twt_author = self.get_tweet_details(p.json())
+        for message in messages[1:]:
+            p = self.auth.post("https://api.twitter.com/1.1/statuses/update.json",data={'status':f"@{twt_author} "+message,'in_reply_to_status_id':twt_id})
+            if(p.status_code!=200):
+                logger.error(f"Tweet {p.json()}")
+                return
+            twt_id, twt_author = self.get_tweet_details(p.json())
+
+    def reply(self, text, tweet_id, tweet_author):
+        twt_id = tweet_id
+        twt_author = tweet_author
+        handle_str = f"@{twt_author} "
+        messages = split_text(text,handle_str)
+        for message in messages:
+            p = self.auth.post("https://api.twitter.com/1.1/statuses/update.json",data={'status':handle_str+message,'in_reply_to_status_id':twt_id})
+            if(p.status_code!=200):
+                logger.error(f"Reply {p.json()}")
+                return
+            twt_id, twt_author = self.get_tweet_details(p.json())
 
     def retweet(self, twt_id):
         p = self.auth.post("https://api.twitter.com/1.1/statuses/retweet/{}.json".format(twt_id))
@@ -101,6 +121,11 @@ class Bot:
             else:
                 return r_json['name']
 
+    def get_tweet_details(self,request_json):
+        twt_id = request_json['id']
+        twt_author = request_json['user']['screen_name']
+        return twt_id,twt_author
+
     def add_rules(self):
         rules = [{'value':"{} (-is:retweet)".format(BOT_HANDLE)}]
         payload = {"add":rules}
@@ -130,17 +155,34 @@ class Bot:
                         location = self.get_location_data(has_location['place_id'])
                     # USE THIS ONLY AFTER TWITTER APPROVES OUR BOT
                     # self.retweet(int(json_response['data']['id']))
-                    # for user in json_response['includes']['users']:
-                    #     if(user['id']==json_response['data']['author_id']):
-                    #         author_name = user['name']
-                    #         author_handle = user['username']
-                    #         break
-                    # self.reply("Hello World! This is Testing",int(json_response['data']['id']),author_handle)
+                    for user in json_response['includes']['users']:
+                        if(user['id']==json_response['data']['author_id']):
+                            author_name = user['name']
+                            author_handle = user['username']
+                            break
+                    # self.reply("Thanks for tagging us. We'll get back with the latest supplies for you!",int(json_response['data']['id']),author_handle)
                     # self.dm(json_response['data']['author_id'],"Hey {}!\nThanks for tagging us. Here are some supplies!".format(author_name))
                     print("{}\n".format(json_response))
 
 def to_query_str(query):
     return urllib.parse.quote(query)
+
+def split_text(text,handle_str=None,limit=280):
+    if(handle_str):
+        limit -= len(handle_str)
+    split_text_list = []
+    words = text.split(" ")
+    new_str = ""
+    for (i,word) in enumerate(words):
+        if(len(new_str+word+" ")<limit):
+            new_str += (word + " ")
+            if(i==len(words)-1):
+                split_text_list.append(new_str)
+        else:
+            split_text_list.append(new_str)
+            new_str = ""
+    return split_text_list
+
 
 
 if __name__=="__main__":
