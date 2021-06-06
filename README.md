@@ -17,5 +17,5 @@ pip install -r requirements.txt <br>
 - For Scraping <br>
   cd scraper <br>
   create a file "extracted_data.json" and "hashed_data.json" with the contents of "extracted_data.json.example"<br>
-  set your criteria in scraper.py [queries] <br>
+  set your queries in scraper_config.py <br>
   python -m scraper.scraper [number of tweets] <br>
